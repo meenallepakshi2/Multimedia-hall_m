@@ -1,0 +1,79 @@
+import { Suspense, lazy } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/common/ProtectedRoute';
+
+const Login = lazy(() => import('./pages/Login'));
+const CalendarView = lazy(() => import('./pages/CalendarView'));
+const Reports = lazy(() => import('./pages/Reports'));
+const UserDashboard = lazy(() => import('./pages/user/UserDashboard'));
+const NewBooking = lazy(() => import('./pages/user/NewBooking'));
+const MyBookings = lazy(() => import('./pages/user/MyBookings'));
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminRequests = lazy(() => import('./pages/admin/AdminRequests'));
+const AllBookings = lazy(() => import('./pages/admin/AllBookings'));
+
+import './App.css';
+
+function App() {
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <Suspense fallback={<div className="loading-screen">Loading...</div>}>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<Navigate to="/login" replace />} />
+
+            <Route path="/user/dashboard" element={
+              <ProtectedRoute role="college"><UserDashboard /></ProtectedRoute>
+            } />
+            <Route path="/user/new-booking" element={
+              <ProtectedRoute role="college"><NewBooking /></ProtectedRoute>
+            } />
+            <Route path="/user/my-bookings" element={
+              <ProtectedRoute role="college"><MyBookings /></ProtectedRoute>
+            } />
+            <Route path="/user/calendar" element={
+              <ProtectedRoute role="college"><CalendarView /></ProtectedRoute>
+            } />
+            <Route path="/user/reports" element={
+              <ProtectedRoute role="college"><Reports /></ProtectedRoute>
+            } />
+
+            <Route path="/admin/dashboard" element={
+              <ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>
+            } />
+            <Route path="/admin/requests" element={
+              <ProtectedRoute role="admin"><AdminRequests /></ProtectedRoute>
+            } />
+            <Route path="/admin/all-bookings" element={
+              <ProtectedRoute role="admin"><AllBookings /></ProtectedRoute>
+            } />
+            <Route path="/admin/calendar" element={
+              <ProtectedRoute role="admin"><CalendarView /></ProtectedRoute>
+            } />
+            <Route path="/admin/reports" element={
+              <ProtectedRoute role="admin"><Reports /></ProtectedRoute>
+            } />
+
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          </Routes>
+        </Suspense>
+
+        <ToastContainer
+          position="top-right"
+          autoClose={4000}
+          hideProgressBar={false}
+          closeOnClick
+          pauseOnHover
+          theme="light"
+        />
+      </BrowserRouter>
+    </AuthProvider>
+  );
+}
+
+export default App;
