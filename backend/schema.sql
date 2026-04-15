@@ -4,6 +4,8 @@
 CREATE DATABASE IF NOT EXISTS auditorium_db;
 USE auditorium_db;
 
+TRUNCATE TABLE audit_logs;
+
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
