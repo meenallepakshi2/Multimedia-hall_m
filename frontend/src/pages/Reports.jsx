@@ -27,7 +27,12 @@ const Reports = () => {
     setLoading((prev) => ({ ...prev, [type]: true }));
 
     try {
-      const params = isAdmin ? filters : {};
+      const params = isAdmin
+        ? filters
+        : {
+            from: filters.from,
+            to: filters.to,
+          };
 
       const res =
         type === 'pdf'
@@ -66,39 +71,41 @@ const Reports = () => {
         </div>
 
         <div className="reports-card">
-          {isAdmin && (
-            <div className="filters-section">
-              <h3>Filters</h3>
-              <div className="filters-grid">
-                <div className="form-group">
-                  <label>College</label>
-                  <select name="college" value={filters.college} onChange={handleChange}>
-                    <option value="">All Colleges</option>
-                    <option>College A</option>
-                    <option>College B</option>
-                    <option>College C</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label>Status</label>
-                  <select name="status" value={filters.status} onChange={handleChange}>
-                    <option value="">All Statuses</option>
-                    <option value="pending">Pending</option>
-                    <option value="approved">Approved</option>
-                    <option value="rejected">Rejected</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label>From Date</label>
-                  <input type="date" name="from" value={filters.from} onChange={handleChange} />
-                </div>
-                <div className="form-group">
-                  <label>To Date</label>
-                  <input type="date" name="to" value={filters.to} onChange={handleChange} />
-                </div>
+          <div className="filters-section">
+            <h3>{isAdmin ? 'Filters' : 'Date Range'}</h3>
+            <div className="filters-grid">
+              {isAdmin && (
+                <>
+                  <div className="form-group">
+                    <label>College</label>
+                    <select name="college" value={filters.college} onChange={handleChange}>
+                      <option value="">All Colleges</option>
+                      <option>College A</option>
+                      <option>College B</option>
+                      <option>College C</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Status</label>
+                    <select name="status" value={filters.status} onChange={handleChange}>
+                      <option value="">All Statuses</option>
+                      <option value="pending">Pending</option>
+                      <option value="approved">Approved</option>
+                      <option value="rejected">Rejected</option>
+                    </select>
+                  </div>
+                </>
+              )}
+              <div className="form-group">
+                <label>From Date</label>
+                <input type="date" name="from" value={filters.from} onChange={handleChange} />
+              </div>
+              <div className="form-group">
+                <label>To Date</label>
+                <input type="date" name="to" value={filters.to} onChange={handleChange} />
               </div>
             </div>
-          )}
+          </div>
 
           <div className="export-buttons">
             <button className="export-btn pdf" onClick={() => handleDownload('pdf')} disabled={loading.pdf}>
