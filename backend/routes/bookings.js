@@ -7,7 +7,6 @@ const {
   getAllBookings,
   getPendingBookings,
   cancelMyBooking,
-  cancelApprovedBooking,
   updateBookingStatus,
   uploadEventReport,
   getEventReport,
@@ -29,6 +28,6 @@ router.get('/:id/report', authenticate, getEventReport);
 router.get('/', authenticate, authorizeAdmin, getAllBookings);
 router.get('/pending', authenticate, authorizeAdmin, getPendingBookings);
 router.patch('/:id/status', authenticate, authorizeAdmin, updateBookingStatus);
-router.patch('/:id/cancel', authenticate, authorizeAdmin, cancelApprovedBooking);
+
 
 module.exports = router;

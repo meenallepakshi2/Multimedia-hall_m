@@ -192,10 +192,12 @@ const getApprovedBookings = async (req, res) => {
 
 // ─── Admin: Get all bookings ────────────────────────────────────────────────
 const getAllBookings = async (req, res) => {
-  const { college, status, from, to } = req.query;
+  const { college, status, from, to, page, limit } = req.query;
+  const pageNum = parseInt(page, 10) || 1;
+  const limitNum = parseInt(limit, 10) || 50;
+  const offset = (pageNum - 1) * limitNum;
 
-  let query = `
-    SELECT ${bookingListSelect}, u.email AS user_email
+  let baseQuery = `
     FROM bookings b
     JOIN users u ON b.user_id = u.id
     WHERE 1=1
@@ -203,30 +205,46 @@ const getAllBookings = async (req, res) => {
   const params = [];
 
   if (college) {
-    query += ' AND b.college_name = ?';
+    baseQuery += ' AND b.college_name = ?';
     params.push(college);
   }
 
   if (status) {
-    query += ' AND b.status = ?';
+    baseQuery += ' AND b.status = ?';
     params.push(status);
   }
 
   if (from) {
-    query += ' AND b.event_date >= ?';
+    baseQuery += ' AND b.event_date >= ?';
     params.push(from);
   }
 
   if (to) {
-    query += ' AND b.event_date <= ?';
+    baseQuery += ' AND b.event_date <= ?';
     params.push(to);
   }
 
-  query += ' ORDER BY b.created_at DESC';
+  const countQuery = `SELECT COUNT(*) AS total ${baseQuery}`;
+  const dataQuery = `
+    SELECT ${bookingListSelect}, u.email AS user_email
+    ${baseQuery}
+    ORDER BY b.created_at DESC
+    LIMIT ? OFFSET ?
+  `;
 
   try {
-    const [rows] = await db.query(query, params);
-    res.json(rows.map(withFileLinks));
+    const [[{ total }]] = await db.query(countQuery, params);
+    const [rows] = await db.query(dataQuery, [...params, limitNum, offset]);
+    
+    res.json({
+      data: rows.map(withFileLinks),
+      meta: {
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum)
+      }
+    });
   } catch (err) {
     console.error('Get all bookings error:', err);
     res.status(500).json({ message: 'Server error.' });
@@ -250,60 +268,7 @@ const getPendingBookings = async (req, res) => {
   }
 };
 
-// ─── Admin: Cancel already approved booking ───────────────────────────────────
-const cancelApprovedBooking = async (req, res) => {
-  const { id } = req.params;
-  const adminNoteInput = String(req.body?.admin_note || '').trim();
-  const adminNote = adminNoteInput || 'Approved booking cancelled by admin.';
 
-  try {
-    const [bookingRows] = await db.query(
-      `SELECT b.id, b.title, b.college_name, b.event_date, b.start_time, b.end_time, b.status,
-              u.email, u.name AS user_name
-       FROM bookings b
-       JOIN users u ON b.user_id = u.id
-       WHERE b.id = ?`,
-      [id]
-    );
-
-    if (bookingRows.length === 0) {
-      return res.status(404).json({ message: 'Booking not found.' });
-    }
-
-    const booking = bookingRows[0];
-    if (booking.status !== 'approved') {
-      return res.status(400).json({ message: 'Only approved bookings can be cancelled by admin.' });
-    }
-
-    await db.query('UPDATE bookings SET status = ?, admin_note = ? WHERE id = ?', [
-      'rejected',
-      adminNote,
-      id,
-    ]);
-
-    if (booking.email) {
-      await sendStatusEmail(
-        booking.email,
-        booking.user_name || booking.college_name,
-        booking,
-        'rejected',
-        adminNote
-      );
-    }
-
-    await logAudit(
-      'BOOKING_CANCELLED_BY_ADMIN',
-      req.user.id,
-      id,
-      `Approved booking ${id} cancelled by admin`
-    );
-
-    res.json({ message: 'Approved booking cancelled successfully.' });
-  } catch (err) {
-    console.error('Cancel approved booking error:', err);
-    res.status(500).json({ message: 'Server error.' });
-  }
-};
 
 // ─── College User: Upload post-event report PDF ──────────────────────────────
 const uploadEventReport = async (req, res) => {
@@ -574,7 +539,6 @@ module.exports = {
   getAllBookings,
   getPendingBookings,
   cancelMyBooking,
-  cancelApprovedBooking,
   updateBookingStatus,
   uploadEventReport,
   getEventReport,

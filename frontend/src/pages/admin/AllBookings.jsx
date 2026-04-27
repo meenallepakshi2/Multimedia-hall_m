@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
-  cancelApprovedBooking,
+  updateBookingStatus,
   downloadProtectedFile,
   getAllBookings,
   openProtectedFileInNewTab,
   toApiFileUrl,
-} from '../../utils/api';
+import { openReport, downloadReport } from '../../utils/fileHelpers';
 import { toast } from 'react-toastify';
 import Navbar from '../../components/common/Navbar';
 import PageBackButton from '../../components/common/PageBackButton';
@@ -16,16 +16,18 @@ import './AllBookings.css';
 
 const AllBookings = () => {
   const [bookings, setBookings] = useState([]);
+  const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(false);
   const [cancellingId, setCancellingId] = useState(null);
-  const [filters, setFilters] = useState({ college: '', status: '', from: '', to: '' });
-  const [appliedFilters, setAppliedFilters] = useState({ college: '', status: '', from: '', to: '' });
+  const [filters, setFilters] = useState({ college: '', status: '', from: '', to: '', page: 1 });
+  const [appliedFilters, setAppliedFilters] = useState({ college: '', status: '', from: '', to: '', page: 1 });
 
   const fetchBookings = useCallback(async (f, showLoader = true) => {
     if (showLoader) setLoading(true);
     try {
       const res = await getAllBookings(f);
-      setBookings(res.data);
+      setBookings(res.data.data);
+      setMeta(res.data.meta);
     } finally {
       if (showLoader) setLoading(false);
     }
@@ -40,30 +42,12 @@ const AllBookings = () => {
     setAppliedFilters(filters);
   };
   const handleReset = () => {
-    const cleared = { college: '', status: '', from: '', to: '' };
+    const cleared = { college: '', status: '', from: '', to: '', page: 1 };
     setFilters(cleared);
     setAppliedFilters(cleared);
   };
 
-  const openReport = async (booking) => {
-    if (!booking.event_report_url) return;
-    try {
-      await openProtectedFileInNewTab(booking.event_report_url);
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to open event report.');
-    }
-  };
 
-  const downloadReport = async (booking) => {
-    if (!booking.event_report_url) return;
-    const separator = booking.event_report_url.includes('?') ? '&' : '?';
-    const downloadPath = `${booking.event_report_url}${separator}download=1`;
-    try {
-      await downloadProtectedFile(downloadPath, `${booking.title || 'event'}-report.pdf`);
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to download event report.');
-    }
-  };
 
   const handleAdminCancel = async (booking) => {
     const note = window.prompt(
@@ -75,7 +59,7 @@ const AllBookings = () => {
 
     setCancellingId(booking.id);
     try {
-      await cancelApprovedBooking(booking.id, note);
+      await updateBookingStatus(booking.id, 'rejected', note);
       toast.success('Approved booking cancelled.');
       await fetchBookings(appliedFilters, false);
     } catch (err) {
@@ -120,7 +104,7 @@ const AllBookings = () => {
           <p>Loading...</p>
         ) : (
           <div className="table-card">
-            <p className="result-count">{bookings.length} record(s) found</p>
+            <p className="result-count">{meta ? meta.total : bookings.length} record(s) found</p>
             <table className="bookings-table">
               <thead>
                 <tr>
@@ -195,6 +179,25 @@ const AllBookings = () => {
                  ))}
               </tbody>
             </table>
+            {meta && meta.totalPages > 1 && (
+              <div className="pagination" style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '1rem' }}>
+                <button 
+                  className="btn-secondary"
+                  disabled={meta.page <= 1} 
+                  onClick={() => setAppliedFilters({ ...appliedFilters, page: meta.page - 1 })}
+                >
+                  Previous
+                </button>
+                <span style={{ alignSelf: 'center' }}>Page {meta.page} of {meta.totalPages}</span>
+                <button 
+                  className="btn-secondary"
+                  disabled={meta.page >= meta.totalPages} 
+                  onClick={() => setAppliedFilters({ ...appliedFilters, page: meta.page + 1 })}
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

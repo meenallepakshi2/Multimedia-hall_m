@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
-import './Login.css';
+import AuthForm from '../components/common/AuthForm';
 
 const SupervisorLogin = () => {
   const { loginSupervisor } = useAuth();
@@ -25,41 +25,17 @@ const SupervisorLogin = () => {
   };
 
   return (
-    <div className="login-page">
-      <div className="login-card">
-        <div className="login-header">
-          <div className="login-icon">🛠️</div>
-          <h1>Maintenance Access</h1>
-          <p>Supervisor emergency login</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="login-form">
-          <div className="form-group">
-            <label>Email</label>
-            <input
-              type="email"
-              placeholder="supervisor@email.com"
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>Password</label>
-            <input
-              type="password"
-              placeholder="••••••••"
-              value={form.password}
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
-              required
-            />
-          </div>
-          <button type="submit" className="btn-login" disabled={loading}>
-            {loading ? 'Signing in...' : 'Sign In'}
-          </button>
-        </form>
-      </div>
-    </div>
+    <AuthForm
+      icon="🛠️"
+      title="Maintenance Access"
+      subtitle="Supervisor emergency login"
+      emailPlaceholder="supervisor@email.com"
+      loading={loading}
+      onSubmit={handleSubmit}
+      form={form}
+      setForm={setForm}
+      forgotPasswordLink={false}
+    />
   );
 };
 

@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
-import './Login.css';
+import AuthForm from '../components/common/AuthForm';
 
 const Login = () => {
   const { login } = useAuth();
@@ -25,45 +25,16 @@ const Login = () => {
   };
 
   return (
-    <div className="login-page">
-      <div className="login-card">
-        <div className="login-header">
-          <div className="login-icon">🏛️</div>
-          <h1>Auditorium Booking</h1>
-          <p>Sign in to continue</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="login-form">
-          <div className="form-group">
-            <label>Email</label>
-            <input
-              type="email"
-              placeholder="your@email.com"
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>Password</label>
-            <input
-              type="password"
-              placeholder="••••••••"
-              value={form.password}
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
-              required
-            />
-          </div>
-          <button type="submit" className="btn-login" disabled={loading}>
-            {loading ? 'Signing in...' : 'Sign In'}
-          </button>
-
-          <Link to="/forgot-password" className="forgot-password-link">
-            Forgot password?
-          </Link>
-        </form>
-      </div>
-    </div>
+    <AuthForm
+      icon="🏛️"
+      title="Auditorium Booking"
+      subtitle="Sign in to continue"
+      loading={loading}
+      onSubmit={handleSubmit}
+      form={form}
+      setForm={setForm}
+      forgotPasswordLink={true}
+    />
   );
 };
 

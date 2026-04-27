@@ -5,8 +5,9 @@ import {
   getMyBookings,
   openProtectedFileInNewTab,
   toApiFileUrl,
-  uploadEventReport,
+  uploadEventReport
 } from '../../utils/api';
+import { openReport, downloadReport } from '../../utils/fileHelpers';
 import Navbar from '../../components/common/Navbar';
 import PageBackButton from '../../components/common/PageBackButton';
 import StatusBadge from '../../components/common/StatusBadge';
@@ -61,25 +62,7 @@ const MyBookings = () => {
     setSelectedReportFiles((prev) => ({ ...prev, [bookingId]: file || null }));
   };
 
-  const openReport = async (booking) => {
-    if (!booking.event_report_url) return;
-    try {
-      await openProtectedFileInNewTab(booking.event_report_url);
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to open event report.');
-    }
-  };
 
-  const downloadReport = async (booking) => {
-    if (!booking.event_report_url) return;
-    const separator = booking.event_report_url.includes('?') ? '&' : '?';
-    const downloadPath = `${booking.event_report_url}${separator}download=1`;
-    try {
-      await downloadProtectedFile(downloadPath, `${booking.title || 'event'}-report.pdf`);
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to download event report.');
-    }
-  };
 
   const submitEventReport = async (booking) => {
     const selectedFile = selectedReportFiles[booking.id];
