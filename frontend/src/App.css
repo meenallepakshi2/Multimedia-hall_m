@@ -72,6 +72,18 @@ a:hover {
   min-height: 100vh;
 }
 
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -296,5 +308,37 @@ button:disabled {
 
   .page {
     padding: var(--space-md);
+  }
+}
+
+.app-footer {
+  border-top: 1px solid var(--border);
+  background: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 32px;
+  font-size: 14px;
+  color: #4b5563;
+  margin-top: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Hide legacy login footer so only the global footer is shown. */
+.page-footer {
+  display: none !important;
+}
+
+.app-footer-right a {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .app-footer {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

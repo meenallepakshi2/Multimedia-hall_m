@@ -139,10 +139,6 @@ const Login = () => {
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="page-footer">
-        <p>© 2026 Auditorium Booking System</p>
-      </div>
     </div>
   );
 };
