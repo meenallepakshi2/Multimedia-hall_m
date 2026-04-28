@@ -1,52 +1,54 @@
+/* GRID */
 .requests-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-lg);
 }
 
+/* CARD */
 .request-card {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-  border-left: 4px solid #f59e0b;
+  border-left: 4px solid var(--accent);
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
+/* HEADER */
 .request-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+/* COLLEGE TAG */
 .college-tag {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: var(--primary-light);
+  color: var(--primary-dark);
   padding: 3px 10px;
-  border-radius: 20px;
+  border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
 }
 
+/* DATE */
 .submitted-date {
   font-size: 12px;
-  color: #9ca3af;
+  color: var(--text-light);
 }
 
+/* TITLE */
 .request-title {
   font-size: 16px;
   font-weight: 700;
-  color: #1e3a5f;
-  margin: 0;
 }
 
+/* PURPOSE */
 .request-purpose {
   font-size: 13px;
-  color: #6b7280;
-  margin: 0;
+  color: var(--text-light);
 }
+
+/* META */
 
 .request-poster {
   border: 1px solid #e5e7eb;
@@ -68,61 +70,33 @@
   font-size: 12px;
   color: #9ca3af;
 }
-
 .request-meta {
   display: flex;
-  gap: 14px;
+  gap: 12px;
   font-size: 13px;
-  color: #374151;
 }
 
+/* ACTIONS */
 .request-actions {
   display: flex;
   gap: 10px;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
+/* REMOVE OLD BUTTONS (use system) */
 .btn-approve {
   flex: 1;
-  background: #16a34a;
-  color: white;
-  border: none;
-  padding: 9px 16px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background 0.2s;
 }
-
-.btn-approve:hover:not(:disabled) { background: #15803d; }
 
 .btn-reject {
   flex: 1;
-  background: #dc2626;
-  color: white;
-  border: none;
-  padding: 9px 16px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background 0.2s;
 }
 
-.btn-reject:hover:not(:disabled) { background: #b91c1c; }
-
-.btn-approve:disabled,
-.btn-reject:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* Decision Modal */
+/* MODAL */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.45);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -130,105 +104,55 @@
 }
 
 .decision-modal {
-  background: white;
-  border-radius: 16px;
-  padding: 32px;
-  width: 460px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  width: 420px;
+  max-width: calc(100vw - 20px);
 }
 
-.decision-modal h3 {
-  font-size: 20px;
-  font-weight: 700;
-  color: #1e3a5f;
-  margin: 0;
-}
-
-.decision-modal p {
-  color: #374151;
-  margin: 0;
-}
-
-.decision-modal .form-group {
+/* FORM */
+.form-group {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.decision-modal .form-group label {
+.form-group label {
   font-size: 13px;
   font-weight: 600;
-  color: #374151;
 }
 
+/* USE DESIGN SYSTEM INPUT */
 .decision-modal textarea {
-  padding: 10px 12px;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 14px;
-  outline: none;
-  font-family: inherit;
-  resize: vertical;
-  transition: border-color 0.2s;
+  width: 100%;
 }
 
-.decision-modal textarea:focus { border-color: #2d6a9f; }
-
+/* MODAL ACTIONS */
 .modal-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
+  gap: 10px;
 }
 
-.btn-secondary {
-  background: white;
-  color: #374151;
-  border: 2px solid #e5e7eb;
-  padding: 10px 22px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-secondary:hover { border-color: #9ca3af; }
-
-/* Empty state */
+/* EMPTY STATE */
 .empty-state {
   text-align: center;
   padding: 60px 20px;
-  color: #6b7280;
+  color: var(--text-light);
 }
 
-.empty-icon { font-size: 48px; margin-bottom: 16px; }
-.empty-state h3 { font-size: 20px; color: #374151; margin: 0 0 8px; }
+.empty-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
 
+/* RESPONSIVE */
 @media (max-width: 768px) {
   .requests-grid {
     grid-template-columns: 1fr;
-    gap: 14px;
   }
 
-  .request-card {
-    padding: 16px;
-  }
-
-  .request-header,
-  .request-meta,
   .request-actions,
+  .request-meta,
   .modal-actions {
     flex-direction: column;
-    align-items: stretch;
-  }
-
-  .decision-modal {
-    width: calc(100vw - 24px);
-    padding: 20px 16px;
-    max-height: 90vh;
-    overflow-y: auto;
   }
 }

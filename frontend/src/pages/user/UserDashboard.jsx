@@ -17,8 +17,6 @@ const UserDashboard = () => {
     try {
       const res = await getMyBookings();
       setBookings(res.data);
-    } catch {
-      return;
     } finally {
       if (showLoader) setLoading(false);
     }
@@ -27,6 +25,7 @@ const UserDashboard = () => {
   useEffect(() => {
     fetchBookings();
   }, [fetchBookings]);
+
   useAutoRefresh(() => fetchBookings(false), 10000);
 
   const pending = bookings.filter((b) => b.status === 'pending').length;
@@ -37,47 +36,55 @@ const UserDashboard = () => {
   return (
     <div>
       <Navbar />
+
       <div className="dashboard-page">
         <div className="page-header">
           <h2>Welcome, {user?.name} 👋</h2>
-          <p>{user?.college_name} — Auditorium Booking Portal</p>
+          <p>{user?.college_name} — B V Jagadish Multimedia Hall</p>
         </div>
 
+        {/* Stats */}
         <div className="stats-row">
-          <div className="stat-card">
+          <div className="stat-card card">
             <div className="stat-number total">{bookings.length}</div>
             <div className="stat-label">Total Requests</div>
           </div>
-          <div className="stat-card">
+
+          <div className="stat-card card">
             <div className="stat-number pending">{pending}</div>
             <div className="stat-label">Pending</div>
           </div>
-          <div className="stat-card">
+
+          <div className="stat-card card">
             <div className="stat-number approved">{approved}</div>
             <div className="stat-label">Approved</div>
           </div>
-          <div className="stat-card">
+
+          <div className="stat-card card">
             <div className="stat-number rejected">{rejected}</div>
             <div className="stat-label">Rejected</div>
           </div>
         </div>
 
+        {/* Actions */}
         <div className="dashboard-actions">
-          <Link to="/user/new-booking" className="action-card primary">
+          <Link to="/user/new-booking" className="card card-hover action-card primary">
             <span className="action-icon">📋</span>
             <div>
               <strong>New Booking Request</strong>
               <p>Submit a request for the auditorium</p>
             </div>
           </Link>
-          <Link to="/user/calendar" className="action-card">
+
+          <Link to="/user/calendar" className="card card-hover action-card">
             <span className="action-icon">📅</span>
             <div>
               <strong>View Calendar</strong>
               <p>See all approved bookings</p>
             </div>
           </Link>
-          <Link to="/user/reports" className="action-card">
+
+          <Link to="/user/reports" className="card card-hover action-card">
             <span className="action-icon">📊</span>
             <div>
               <strong>My Reports</strong>
@@ -86,12 +93,16 @@ const UserDashboard = () => {
           </Link>
         </div>
 
-        <div className="recent-section">
+        {/* Recent */}
+        <div className="recent-section card">
           <h3>Recent Requests</h3>
+
           {loading ? (
             <p>Loading...</p>
           ) : recent.length === 0 ? (
-            <p className="empty-msg">No booking requests yet. <Link to="/user/new-booking">Create one →</Link></p>
+            <p className="empty-msg">
+              No booking requests yet. <Link to="/user/new-booking">Create one →</Link>
+            </p>
           ) : (
             <table className="bookings-table">
               <thead>
@@ -115,6 +126,7 @@ const UserDashboard = () => {
             </table>
           )}
         </div>
+
       </div>
     </div>
   );

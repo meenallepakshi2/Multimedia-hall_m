@@ -68,7 +68,7 @@ const AdminRequests = () => {
         ) : (
           <div className="requests-grid">
             {requests.map((b) => (
-              <div key={b.id} className="request-card">
+              <div key={b.id} className="request-card card card-hover">
                 <div className="request-header">
                   <span className="college-tag">{b.college_name}</span>
                   <span className="submitted-date">
@@ -91,10 +91,17 @@ const AdminRequests = () => {
                   <span>🕐 {b.start_time} – {b.end_time}</span>
                 </div>
                 <div className="request-actions">
-                  <button className="btn-approve" onClick={() => openModal(b, 'approved')}>
+                  <button
+                    className="btn btn-accent"
+                    onClick={() => openModal(b, 'approved')}
+                  >
                     ✓ Approve
                   </button>
-                  <button className="btn-reject" onClick={() => openModal(b, 'rejected')}>
+
+                  <button
+                    className="btn btn-outline"
+                    onClick={() => openModal(b, 'rejected')}
+                  >
                     ✕ Reject
                   </button>
                 </div>
@@ -118,6 +125,7 @@ const AdminRequests = () => {
             <div className="form-group">
               <label>Optional Note to College</label>
               <textarea
+                className="input"
                 rows={3}
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
@@ -129,15 +137,23 @@ const AdminRequests = () => {
               />
             </div>
             <div className="modal-actions">
-              <button className="btn-secondary" onClick={() => setModal(null)}>
-                Cancel
-              </button>
               <button
-                className={modal.action === 'approved' ? 'btn-approve' : 'btn-reject'}
-                onClick={handleDecision}
-                disabled={submitting}
-              >
-                {submitting ? 'Processing...' : `Confirm ${modal.action === 'approved' ? 'Approval' : 'Rejection'}`}
+                  className="btn btn-outline"
+                  onClick={() => setModal(null)}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  className={`btn ${
+                    modal.action === 'approved' ? 'btn-accent' : 'btn-primary'
+                  }`}
+                  onClick={handleDecision}
+                  disabled={submitting}
+                >
+                  {submitting
+                    ? 'Processing...'
+                    : `Confirm ${modal.action === 'approved' ? 'Approval' : 'Rejection'}`}
               </button>
             </div>
           </div>

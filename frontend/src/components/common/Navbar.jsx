@@ -1,5 +1,5 @@
 import { useAuth } from '../../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, NavLink } from 'react-router-dom';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -17,21 +17,50 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="navbar-brand">
-        <span className="navbar-icon">🏛️</span>
-        <span className="navbar-title">Auditorium Booking</span>
+        <img src="/logo.png" alt="Logo" className="nav-logo" />
+        <span className="navbar-title">B V Jagadish Multimedia Hall</span>
       </div>
-
       <div className="navbar-links">
-        <Link to={`${base}/dashboard`}>Dashboard</Link>
-        <Link to={`${base}/calendar`}>Calendar</Link>
-        {!isAdmin && <Link to="/user/new-booking">New Booking</Link>}
-        {!isAdmin && <Link to="/user/my-bookings">My Bookings</Link>}
-        {isAdmin && <Link to="/admin/requests">Requests</Link>}
-        {isAdmin && <Link to="/admin/all-bookings">All Bookings</Link>}
-        <Link to={`${base}/reports`}>Reports</Link>
-        <Link to={`${base}/change-password`}>Change Password</Link>
-      </div>
+      <NavLink to={`${base}/dashboard`} className={({ isActive }) => isActive ? "active" : ""}>
+        Dashboard
+      </NavLink>
 
+      <NavLink to={`${base}/calendar`} className={({ isActive }) => isActive ? "active" : ""}>
+        Calendar
+      </NavLink>
+
+      {!isAdmin && (
+        <NavLink to="/user/new-booking" className={({ isActive }) => isActive ? "active" : ""}>
+          New Booking
+        </NavLink>
+      )}
+
+      {!isAdmin && (
+        <NavLink to="/user/my-bookings" className={({ isActive }) => isActive ? "active" : ""}>
+          My Bookings
+        </NavLink>
+      )}
+
+      {isAdmin && (
+        <NavLink to="/admin/requests" className={({ isActive }) => isActive ? "active" : ""}>
+          Requests
+        </NavLink>
+      )}
+
+      {isAdmin && (
+        <NavLink to="/admin/all-bookings" className={({ isActive }) => isActive ? "active" : ""}>
+          All Bookings
+        </NavLink>
+      )}
+
+      <NavLink to={`${base}/reports`} className={({ isActive }) => isActive ? "active" : ""}>
+        Reports
+      </NavLink>
+
+      <NavLink to={`${base}/change-password`} className={({ isActive }) => isActive ? "active" : ""}>
+        Change Password
+      </NavLink>
+      </div>
       <div className="navbar-user">
         <span className="user-info">
           <span className={`role-badge ${isAdmin ? 'admin' : 'college'}`}>

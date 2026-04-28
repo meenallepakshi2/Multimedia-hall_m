@@ -1,0 +1,18 @@
+:root {
+  --primary: #7c3aed;
+  --primary-dark: #6d28d9;
+  --card: #ffffff;
+  --border: #e5e7eb;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: #f8fafc;
+  color: #1f2937;
+}

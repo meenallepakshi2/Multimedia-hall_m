@@ -3,9 +3,13 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import PublicRoute from './components/common/PublicRoute'; 
 
+import './App.css';
+
+/* Lazy pages */
 const Login = lazy(() => import('./pages/Login'));
 const SupervisorLogin = lazy(() => import('./pages/SupervisorLogin'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
@@ -19,7 +23,19 @@ const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const AdminRequests = lazy(() => import('./pages/admin/AdminRequests'));
 const AllBookings = lazy(() => import('./pages/admin/AllBookings'));
 
-import './App.css';
+/* Smart redirect component */
+const HomeRedirect = () => {
+  const { user } = useAuth();
+
+  if (!user) return <Navigate to="/login" replace />;
+
+  return (
+    <Navigate
+      to={user.role === 'admin' ? '/admin/dashboard' : '/user/dashboard'}
+      replace
+    />
+  );
+};
 
 function App() {
   return (
@@ -27,11 +43,17 @@ function App() {
       <BrowserRouter>
         <Suspense fallback={<div className="loading-screen">Loading...</div>}>
           <Routes>
-            <Route path="/login" element={<Login />} />
+            {/* Public */}
+            <Route path="/login" element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            } />
+              
             <Route path="/_maintenance/supervisor-access-portal" element={<SupervisorLogin />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/" element={<Navigate to="/login" replace />} />
-
+            <Route path="/" element={<HomeRedirect />} />
+            {/* USER */}
             <Route path="/user/dashboard" element={
               <ProtectedRoute role="college"><UserDashboard /></ProtectedRoute>
             } />
@@ -51,6 +73,7 @@ function App() {
               <ProtectedRoute role="college"><ChangePassword /></ProtectedRoute>
             } />
 
+            {/* ADMIN */}
             <Route path="/admin/dashboard" element={
               <ProtectedRoute role={['admin', 'supervisor']}><AdminDashboard /></ProtectedRoute>
             } />
@@ -70,7 +93,9 @@ function App() {
               <ProtectedRoute role={['admin', 'supervisor']}><ChangePassword /></ProtectedRoute>
             } />
 
-            <Route path="*" element={<Navigate to="/login" replace />} />
+            {/* Fallback */}
+            <Route path="*" element={<HomeRedirect />} />
+
           </Routes>
         </Suspense>
 

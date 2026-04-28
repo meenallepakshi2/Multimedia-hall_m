@@ -1,12 +1,35 @@
 .status-badge {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 4px 12px;
+  border-radius: 999px;
+
   font-size: 12px;
   font-weight: 600;
   text-transform: capitalize;
+
+  border: 1px solid transparent;
 }
 
-.status-badge.pending  { background: #fef3c7; color: #92400e; }
-.status-badge.approved { background: #d1fae5; color: #065f46; }
-.status-badge.rejected { background: #fee2e2; color: #991b1b; }
+/* Pending → Orange (accent) */
+.status-badge.pending {
+  background: rgba(249, 115, 22, 0.12);
+  color: var(--accent);
+  border-color: rgba(249, 115, 22, 0.2);
+}
+
+/* Approved → Green (keep semantic success) */
+.status-badge.approved {
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #a7f3d0;
+}
+
+/* Rejected → Red */
+.status-badge.rejected {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}

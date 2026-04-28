@@ -46,6 +46,7 @@ const NewBooking = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
+
   const [form, setForm] = useState({
     title: '',
     purpose: '',
@@ -54,12 +55,16 @@ const NewBooking = () => {
     end_time: '',
     poster: null,
   });
+
   const [submitting, setSubmitting] = useState(false);
   const [bookingsByDate, setBookingsByDate] = useState({});
 
   const today = getTodayKey();
   const timeSlots = useMemo(buildTimeSlots, []);
 
+  /* ===============================
+     PRESET DATE FROM CALENDAR
+  ============================== */
   useEffect(() => {
     const presetDate = normalizeDate(
       searchParams.get('date') || location.state?.selectedDate || ''
@@ -75,6 +80,9 @@ const NewBooking = () => {
     }
   }, [searchParams, location.state]);
 
+  /* ===============================
+     LOAD BOOKINGS (NEXT 3 MONTHS)
+  ============================== */
   useEffect(() => {
     const loadBookings = async () => {
       try {
@@ -82,7 +90,11 @@ const NewBooking = () => {
         const endDate = new Date();
         endDate.setMonth(endDate.getMonth() + 3);
 
-        const res = await getCalendarBookings(normalizeDate(startDate.toISOString()), normalizeDate(endDate.toISOString()));
+        const res = await getCalendarBookings(
+          normalizeDate(startDate.toISOString()),
+          normalizeDate(endDate.toISOString())
+        );
+
         const grouped = res.data.reduce((acc, booking) => {
           const dateKey = booking.event_date.split('T')[0];
 
@@ -92,10 +104,14 @@ const NewBooking = () => {
             end: toMinutes(booking.end_time),
             label: `${booking.start_time} - ${booking.end_time} (${booking.college_name})`,
           });
+
           return acc;
         }, {});
 
-        Object.values(grouped).forEach((items) => items.sort((a, b) => a.start - b.start));
+        Object.values(grouped).forEach((items) =>
+          items.sort((a, b) => a.start - b.start)
+        );
+
         setBookingsByDate(grouped);
       } catch (err) {
         console.error('Failed to load booked slots');
@@ -105,11 +121,14 @@ const NewBooking = () => {
     loadBookings();
   }, []);
 
-  const bookedRanges = form.event_date ? (bookingsByDate[form.event_date] || []) : [];
+  const bookedRanges = form.event_date
+    ? bookingsByDate[form.event_date] || []
+    : [];
 
   const startOptions = timeSlots.slice(0, -1).map((time) => {
     const startMinutes = toMinutes(time);
     const endMinutes = startMinutes + TIME_STEP;
+
     return {
       value: time,
       disabled: hasOverlap(startMinutes, endMinutes, bookedRanges),
@@ -118,7 +137,9 @@ const NewBooking = () => {
 
   const endOptions = timeSlots.slice(1).map((time) => {
     const endMinutes = toMinutes(time);
-    const startMinutes = form.start_time ? toMinutes(form.start_time) : null;
+    const startMinutes = form.start_time
+      ? toMinutes(form.start_time)
+      : null;
 
     return {
       value: time,
@@ -159,6 +180,9 @@ const NewBooking = () => {
     setForm((current) => ({ ...current, [name]: value }));
   };
 
+  /* ===============================
+     SUBMIT
+  ============================== */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -172,12 +196,19 @@ const NewBooking = () => {
       return;
     }
 
-    if (hasOverlap(toMinutes(form.start_time), toMinutes(form.end_time), bookedRanges)) {
-      toast.error('That time overlaps with an existing approved booking.');
+    if (
+      hasOverlap(
+        toMinutes(form.start_time),
+        toMinutes(form.end_time),
+        bookedRanges
+      )
+    ) {
+      toast.error('That time overlaps with an existing booking.');
       return;
     }
 
     setSubmitting(true);
+
     try {
       const payload = new FormData();
       payload.append('title', form.title);
@@ -188,7 +219,8 @@ const NewBooking = () => {
       if (form.poster) payload.append('poster', form.poster);
 
       await submitBooking(payload);
-      toast.success('Booking request submitted! You will be notified by email.');
+
+      toast.success('Booking request submitted!');
       navigate('/user/my-bookings');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Submission failed.');
@@ -200,51 +232,57 @@ const NewBooking = () => {
   return (
     <div>
       <Navbar />
+
       <div className="form-page">
         <PageBackButton fallback="/user/dashboard" />
-        <div className="form-card">
+
+        <div className="form-card card">
           <div className="form-title">
-            <h2>New Booking Request</h2>
-            <p>Pick a date first, then choose from the time slots still available.</p>
+            <h2>B V Jagadish Multimedia Hall Booking</h2>
+            <p>Select date and available time slots.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="booking-form">
+
             <div className="form-group">
               <label>Event Title *</label>
               <input
+                className="input"
                 name="title"
                 value={form.title}
                 onChange={handleChange}
-                placeholder="e.g. Annual Cultural Fest"
                 required
               />
             </div>
 
             <div className="form-group">
-              <label>Purpose / Description</label>
+              <label>Purpose</label>
               <textarea
+                className="input"
                 name="purpose"
                 value={form.purpose}
                 onChange={handleChange}
                 rows={3}
-                placeholder="Briefly describe the event..."
               />
             </div>
 
             <div className="form-group">
-              <label>Event Poster (Image)</label>
+              <label>Event Poster</label>
               <input
                 type="file"
                 name="poster"
                 accept="image/png,image/jpeg,image/webp"
                 onChange={handleChange}
               />
-              <small className="form-help">Optional. Upload JPG, PNG, or WEBP (max 5 MB).</small>
+              <small className="form-help">
+                Optional (JPG, PNG, WEBP)
+              </small>
             </div>
 
             <div className="form-group">
               <label>Event Date *</label>
               <input
+                className="input"
                 type="date"
                 name="event_date"
                 value={form.event_date}
@@ -256,71 +294,52 @@ const NewBooking = () => {
 
             {form.event_date && (
               <div className="booking-availability">
-                <div className="availability-title">Booked slots for this day</div>
                 {bookedRanges.length === 0 ? (
-                  <p className="availability-empty">No approved bookings yet. All time slots are open.</p>
+                  <p>All slots available</p>
                 ) : (
-                  <div className="availability-chips">
-                    {bookedRanges.map((range) => (
-                      <span key={range.label} className="availability-chip">
-                        {range.label}
-                      </span>
-                    ))}
-                  </div>
+                  bookedRanges.map((r) => (
+                    <span key={r.label}>{r.label}</span>
+                  ))
                 )}
               </div>
             )}
 
             <div className="form-row">
-              <div className="form-group">
-                <label>Start Time *</label>
-                <select
-                  name="start_time"
-                  value={form.start_time}
-                  onChange={handleChange}
-                  required
-                  disabled={!form.event_date}
-                >
-                  <option value="">Select start time</option>
-                  {startOptions.map((option) => (
-                    <option key={option.value} value={option.value} disabled={option.disabled}>
-                      {option.value}{option.disabled ? ' - booked' : ''}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label>End Time *</label>
-                <select
-                  name="end_time"
-                  value={form.end_time}
-                  onChange={handleChange}
-                  required
-                  disabled={!form.start_time}
-                >
-                  <option value="">Select end time</option>
-                  {endOptions.map((option) => (
-                    <option key={option.value} value={option.value} disabled={option.disabled}>
-                      {option.value}{option.disabled ? ' - unavailable' : ''}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="form-actions">
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={() => navigate('/user/dashboard')}
+              <select
+                className="input"
+                name="start_time"
+                value={form.start_time}
+                onChange={handleChange}
+                required
               >
-                Cancel
-              </button>
-              <button type="submit" className="btn-primary" disabled={submitting}>
-                {submitting ? 'Submitting...' : 'Submit Request'}
-              </button>
+                <option value="">Start</option>
+                {startOptions.map((o) => (
+                  <option key={o.value} value={o.value} disabled={o.disabled}>
+                    {o.value}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                className="input"
+                name="end_time"
+                value={form.end_time}
+                onChange={handleChange}
+                required
+              >
+                <option value="">End</option>
+                {endOptions.map((o) => (
+                  <option key={o.value} value={o.value} disabled={o.disabled}>
+                    {o.value}
+                  </option>
+                ))}
+              </select>
             </div>
+
+            <button className="btn btn-accent" disabled={submitting}>
+              {submitting ? 'Submitting...' : 'Submit'}
+            </button>
+
           </form>
         </div>
       </div>

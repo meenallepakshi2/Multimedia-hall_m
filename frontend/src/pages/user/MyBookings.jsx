@@ -103,6 +103,7 @@ const MyBookings = () => {
       <Navbar />
       <div className="dashboard-page">
         <PageBackButton fallback="/user/dashboard" />
+
         <div className="page-header">
           <h2>My Booking Requests</h2>
           <p>Track the status of all your submitted requests.</p>
@@ -111,9 +112,20 @@ const MyBookings = () => {
         {loading ? (
           <p>Loading...</p>
         ) : bookings.length === 0 ? (
-          <p className="empty-msg">No bookings found.</p>
+
+          /* ✅ unified empty state */
+          <div className="empty-state">
+            <div className="empty-icon">📭</div>
+            <h3>No bookings yet</h3>
+            <p>Your submitted bookings will appear here.</p>
+          </div>
+
         ) : (
-          <div className="table-card">
+          <div className="table-card card">
+            <p className="result-count">
+              {bookings.length} record(s)
+            </p>
+
             <table className="bookings-table">
               <thead>
                 <tr>
@@ -129,84 +141,125 @@ const MyBookings = () => {
                    <th>Submitted</th>
                  </tr>
               </thead>
+
               <tbody>
                 {bookings.map((b, i) => (
                   <tr key={b.id}>
                     <td>{i + 1}</td>
-                    <td><strong>{b.title}</strong></td>
-                    <td>{new Date(b.event_date).toLocaleDateString()}</td>
-                    <td>{b.start_time} – {b.end_time}</td>
-                    <td><StatusBadge status={b.status} /></td>
-                     <td>
-                       {b.poster_url ? (
-                         <div style={{ display: 'grid', gap: 6 }}>
-                           <a href={toApiFileUrl(b.poster_url)} target="_blank" rel="noopener noreferrer">
-                             <img src={toApiFileUrl(b.poster_url)} alt={`${b.title} poster`} className="table-poster-thumb" />
-                           </a>
-                           <a className="link-btn" href={toApiFileUrl(b.poster_url)} target="_blank" rel="noopener noreferrer">
-                             View poster
-                           </a>
-                         </div>
-                       ) : (
-                         <span style={{ color: '#9ca3af' }}>—</span>
-                       )}
-                     </td>
-                    <td>
-                      <div style={{ display: 'grid', gap: 6 }}>
-                        {b.event_report_url ? (
-                          <div style={{ display: 'grid', gap: 6 }}>
-                            <button type="button" className="link-btn" onClick={() => openReport(b)}>
-                              View report
-                            </button>
-                            <button type="button" className="link-btn" onClick={() => downloadReport(b)}>
-                              Download report
-                            </button>
-                          </div>
-                        ) : (
-                          <span style={{ color: '#9ca3af' }}>No report</span>
-                        )}
+<td><strong>{b.title}</strong></td>
 
-                        {canUploadReport(b) ? (
-                          <div style={{ display: 'grid', gap: 6 }}>
-                            <input
-                              type="file"
-                              accept="application/pdf"
-                              onChange={(e) => handleReportFileChange(b.id, e.target.files?.[0])}
-                            />
-                            <button
-                              type="button"
-                              className="btn-primary"
-                              onClick={() => submitEventReport(b)}
-                              disabled={!selectedReportFiles[b.id] || uploadingBookingId === b.id}
-                              style={{ padding: '6px 10px', fontSize: 12 }}
-                            >
-                              {uploadingBookingId === b.id ? 'Uploading...' : 'Upload report'}
-                            </button>
-                          </div>
-                        ) : b.status === 'approved' ? (
-                          <span style={{ color: '#9ca3af', fontSize: 12 }}>Upload enabled after event ends.</span>
-                        ) : (
-                          <span style={{ color: '#9ca3af', fontSize: 12 }}>Available only for approved events.</span>
-                        )}
-                      </div>
-                     </td>
-                    <td>
-                      {b.status === 'pending' ? (
-                        <button
-                          type="button"
-                          className="btn-secondary"
-                          onClick={() => cancelRequest(b)}
-                          disabled={cancellingBookingId === b.id}
-                          style={{ padding: '6px 10px', fontSize: 12 }}
-                        >
-                          {cancellingBookingId === b.id ? 'Cancelling...' : 'Cancel request'}
-                        </button>
-                      ) : (
-                        <span style={{ color: '#9ca3af' }}>—</span>
-                      )}
-                    </td>
-                    <td>{b.admin_note || <span style={{ color: '#9ca3af' }}>—</span>}</td>
-                    <td>{new Date(b.created_at).toLocaleDateString()}</td>
+<td>{new Date(b.event_date).toLocaleDateString()}</td>
+
+<td>{b.start_time} – {b.end_time}</td>
+
+<td><StatusBadge status={b.status} /></td>
+
+<td>
+  {b.poster_url ? (
+    <div style={{ display: 'grid', gap: 6 }}>
+      <a href={toApiFileUrl(b.poster_url)} target="_blank" rel="noopener noreferrer">
+        <img
+          src={toApiFileUrl(b.poster_url)}
+          alt={`${b.title} poster`}
+          className="table-poster-thumb"
+        />
+      </a>
+      <a
+        className="link-btn"
+        href={toApiFileUrl(b.poster_url)}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        View poster
+      </a>
+    </div>
+  ) : (
+    <span style={{ color: '#9ca3af' }}>—</span>
+  )}
+</td>
+
+<td>
+  <div style={{ display: 'grid', gap: 6 }}>
+    {b.event_report_url ? (
+      <div style={{ display: 'grid', gap: 6 }}>
+        <button
+          type="button"
+          className="link-btn"
+          onClick={() => openReport(b)}
+        >
+          View report
+        </button>
+        <button
+          type="button"
+          className="link-btn"
+          onClick={() => downloadReport(b)}
+        >
+          Download report
+        </button>
+      </div>
+    ) : (
+      <span style={{ color: '#9ca3af' }}>No report</span>
+    )}
+
+    {canUploadReport(b) ? (
+      <div style={{ display: 'grid', gap: 6 }}>
+        <input
+          type="file"
+          accept="application/pdf"
+          onChange={(e) =>
+            handleReportFileChange(b.id, e.target.files?.[0])
+          }
+        />
+        <button
+          type="button"
+          className="btn-primary"
+          onClick={() => submitEventReport(b)}
+          disabled={
+            !selectedReportFiles[b.id] ||
+            uploadingBookingId === b.id
+          }
+          style={{ padding: '6px 10px', fontSize: 12 }}
+        >
+          {uploadingBookingId === b.id
+            ? 'Uploading...'
+            : 'Upload report'}
+        </button>
+      </div>
+    ) : b.status === 'approved' ? (
+      <span style={{ color: '#9ca3af', fontSize: 12 }}>
+        Upload enabled after event ends.
+      </span>
+    ) : (
+      <span style={{ color: '#9ca3af', fontSize: 12 }}>
+        Available only for approved events.
+      </span>
+    )}
+  </div>
+</td>
+
+<td>
+  {b.status === 'pending' ? (
+    <button
+      type="button"
+      className="btn-secondary"
+      onClick={() => cancelRequest(b)}
+      disabled={cancellingBookingId === b.id}
+      style={{ padding: '6px 10px', fontSize: 12 }}
+    >
+      {cancellingBookingId === b.id
+        ? 'Cancelling...'
+        : 'Cancel request'}
+    </button>
+  ) : (
+    <span style={{ color: '#9ca3af' }}>—</span>
+  )}
+</td>
+
+<td>
+  {b.admin_note || <span style={{ color: '#9ca3af' }}>—</span>}
+</td>
+
+<td>{new Date(b.created_at).toLocaleDateString()}</td>
                   </tr>
                 ))}
               </tbody>
