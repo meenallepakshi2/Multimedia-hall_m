@@ -37,20 +37,6 @@ const HomeRedirect = () => {
   );
 };
 
-/* Prevent logged-in users from seeing login */
-const PublicRoute = ({ children }) => {
-  const { user } = useAuth();
-  if (user) {
-    return (
-      <Navigate
-        to={user.role === 'admin' ? '/admin/dashboard' : '/user/dashboard'}
-        replace
-      />
-    );
-  }
-  return children;
-};
-
 function App() {
   return (
     <AuthProvider>
